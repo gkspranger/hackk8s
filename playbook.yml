@@ -1,0 +1,56 @@
+---
+
+- hosts: all
+  gather_facts: False
+  become: True
+  tasks:
+    - name: get minikube binary
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        dest: /usr/local/bin/minikube
+        mode: "0755"
+
+    - name: setup k8s repo
+      template:
+        src: k8s.repo
+        dest: /etc/yum.repos.d/kubernetes.repo
+        mode: "0644"
+
+    - name: install kubectl
+      yum:
+        name: kubectl
+
+    - name: add kubectl completion
+      lineinfile:
+        path: /root/.bashrc
+        regexp: '.+kubectl completion bash.+'
+        line: "source <(kubectl completion bash)"
+
+    - name: add the docker community repository
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: "0644"
+
+    - name: remove old versions of docker
+      yum:
+        name:
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+        state: absent
+
+    - name: install docker and its dependencies
+      yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
