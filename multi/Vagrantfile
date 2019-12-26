@@ -1,0 +1,29 @@
+$script = <<-SCRIPT
+curl -sfL https://get.k3s.io | sh -
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  box = "bento/centos-7"
+
+  config.vm.define "master" do |m|
+    m.vm.box = box
+    m.vm.network :private_network, ip: "10.10.10.10"
+    m.vm.hostname = "master"
+
+    m.vm.provider "virtualbox" do |v|
+      v.memory = 4096
+    end
+
+    m.vm.provision "shell", inline: $script
+  end
+
+  config.vm.define "worker" do |w|
+    w.vm.box = box
+    w.vm.network :private_network, ip: "10.10.10.20"
+    w.vm.hostname = "worker"
+
+    w.vm.provider "virtualbox" do |v|
+      v.memory = 4096
+    end
+  end
+end
