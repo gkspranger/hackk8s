@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rng
+  labels:
+    app: rng
+spec:
+  selector:
+    matchLabels:
+      app: rng
+  template:
+    metadata:
+      labels:
+        app: rng
+    spec:
+      containers:
+        - image: dockercoins/rng:v0.1
+          name: rng
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rng
+  name: rng
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: rng
+  type: ClusterIP
