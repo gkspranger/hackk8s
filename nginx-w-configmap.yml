@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: myconfig
+          configMap:
+            name: myconfig
+      containers:
+        - image: nginx:1.17
+          name: nginx
+          volumeMounts:
+            - name: myconfig
+              mountPath: /tmp/myconfig
+          env:
+            - name: YOYO
+              valueFrom:
+                configMapKeyRef:
+                  name: yoyo
+                  key: HELLO
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysec
+                  key: password
